@@ -17,32 +17,45 @@
 #
 
 # -----------------------------------------------------------------------------
-# ONOS network configuration uploader.
+# Tool to manage ONOS component configurations using REST API.
 # -----------------------------------------------------------------------------
-function usage() {
-     echo "usage: onos-netcfg [-v] [-P port] [-u user] [-p password] node file|DELETE [url]"
-     exit 1
+usage() {
+    echo "usage: onos-cfg [-P port] [-u user] [-p password] [-v] \\"
+    echo "          node [list|post|delete] [component] [JSON file if posting or deleting]"
 }
 
 . $(dirname $0)/_rest-port
 . $(dirname $0)/_find-node
 . $(dirname $0)/_check-json
 
-node=$(find_node $1)
-file="${2}"
-url="${3}"
+fail="--fail"
+[ "$1" == "-v" ] && shift && fail=""
 
-export URL="http://$node:$port/onos/v1/network/configuration/${url}"
+node=$(find_node $1)
+cmd=${2:-list}
+component=${3}
+file=${4}
+
+export URL=http://$node:$port/onos/v1/network/configuration/${component}
 export curl="curl ${fail} -sSL --user $user:$password --noproxy ${node} "
 
-[ "$node" == "" -o "$file" == "" ] && usage;
-
-method="POST"
-[ $(echo $file | awk '{print tolower($0)}') == "delete" ] && method="DELETE"
-
-if [ $method == "POST" ]; then
-    checkJson $file
-    $curl -X POST -H 'Content-Type:application/json' $URL -d@$file
-elif [ $method == "DELETE" ]; then
-    $curl -X DELETE $URL
+if [ "$node" == "" ]; then
+     usage && exit 1
 fi
+
+case $cmd in
+    list)
+        ${curl} -X GET ${URL} && echo;;
+    post)
+        checkJson "$file"
+        $curl -X POST -H 'Content-Type:application/json' ${URL} -d @$file && echo;;
+    delete)
+        $curl -X DELETE -H 'Accept:application/json' ${URL} && echo;;
+    *) usage && exit 1;;
+esac
+
+
+
+
+
+

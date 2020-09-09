@@ -1,0 +1,12 @@
+{
+  "sadis": {
+    "entries": [
+      {
+        "id": "BBSIM_OLT_0",
+        "hardwareIdentifier": "0f:f1:ce:c0:ff:ee",
+        "nasId": "BBSIMOLT000",
+        "uplinkPort": 1048576
+      }
+    ]
+  }
+}
