@@ -1,0 +1,5 @@
+#!/bin/bash
+
+GetData(){
+    python parse_json.py ${1} ${2}     
+}
